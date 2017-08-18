@@ -26,14 +26,81 @@ $ openssl rsa -in private.rsa -pubout > public.rsa.pub
 
 # Install
 
-$ go build jwt.go
+$ go build main.go
 
-$ sudo cp jwt /usr/bin
+$ sudo cp main /usr/bin/jwt
+
+# Simulate 
+
+$ go run simulate_ping.go
+
+
+# Simulate Curl
+
+$ curl -X POST -H "Content-Type: application/json" \
+-H "Authorization: Basic ZTg5NjFlZDczYTQzMzE0YWYyY2NlNDdhNGY1YjY1ZGI=:ZGExMjRhMDAwNTE1MDUyYzFlNWJjNmU0NzQ4Yzc3ZTU=" \
+localhost:9001/token
+
+$ curl -X POST -H "Content-Type: application/json" \
+-H -H "Authorization: Bearer <TOKEN>" \
+localhost:9001/ping
+
+$ curl -X POST -H "Content-Type: application/json" \
+-H -H "Authorization: Bearer <TOKEN>" \
+localhost:9001/hello
 
 # Main function
 
 ```go
 
+//
+// start
+//
+func main() {
 
+	//
+	//
+	//
+	ShowScreen()
+
+	// Creating limiter for all handlers
+	// or one for each handler. Your choice.
+	// This limiter basically says: allow at most NewLimiter request per 1 second.
+	limiter := tollbooth.NewLimiter(NewLimiter, time.Second)
+
+	// Limit only GET and POST requests.
+	limiter.Methods = []string{"GET", "POST"}
+
+	//
+	//
+	//
+	mux := http.NewServeMux()
+
+	mux.Handle(HandlerPing, tollbooth.LimitFuncHandler(limiter, HandlerFuncAuth(jwt.HandlerValidate, Ping)))
+
+	mux.Handle(HandlerHello, tollbooth.LimitFuncHandler(limiter, HandlerFuncAuth(jwt.HandlerValidate, Hello)))
+
+	//
+	// Off the default mux
+	// Does not need authentication, only user key and token
+	//
+	mux.Handle(HandlerToken, tollbooth.LimitFuncHandler(limiter, jwt.AuthBasic))
+
+	//
+	//
+	//
+	confServer = &http.Server{
+
+		Addr: ":" + ServerPort,
+
+		Handler: mux,
+		//ReadTimeout:    30 * time.Second,
+		//WriteTimeout:   20 * time.Second,
+		MaxHeaderBytes: 1 << 23, // Size accepted by package
+	}
+
+	log.Fatal(confServer.ListenAndServe())
+
+}
 
 ```
