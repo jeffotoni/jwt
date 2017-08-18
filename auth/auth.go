@@ -249,12 +249,12 @@ func AuthBasic(w http.ResponseWriter, r *http.Request) {
 	//
 	if tokenUserDecodeS == UserR && keyUserDecS == PassR {
 
-		model := models.User{"Login": tokenUserDecodeS, "Password": "", "Role": "admin"}
+		model := models.User
 
-		//model.Login = tokenUserDecodeS
-		// model.Password = keyUserDec
-		//model.Password = ""
-		//model.Role = "admin"
+		model.Login = tokenUserDecodeS
+		//model.Password = keyUserDec
+		model.Password = ""
+		model.Role = "admin"
 
 		token, expires := GenerateJWT(model)
 
