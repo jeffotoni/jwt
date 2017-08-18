@@ -13,26 +13,29 @@ package main
 //
 //
 import (
-	"crypto/rsa"
-	b64 "encoding/base64"
-	"encoding/json"
 	"fmt"
 	"github.com/didip/tollbooth"
-	auth "github.com/jeffotoni/jwt/auth"
-	"io/ioutil"
+	jwt "github.com/jeffotoni/jwt/auth"
 	"log"
 	"net/http"
-	"os"
-	"os/exec"
-	"strconv"
-	"strings"
 	"time"
 )
 
 //
 //
 //
+var (
+	confServer *http.Server
+	ServerPort = "9001"
+)
+
+//
+//
+//
 const (
+	HttpHeaderTitle = `Jwt Example`
+	HttpHeaderMsg   = `Good Server, thank you!`
+
 	SizeByteAllowed = 1 << 24
 	NewLimiter      = 100
 
@@ -69,17 +72,17 @@ func ShowScreen() {
 	//
 	// Basic Authentication
 	//
-	Token := "localhost:9001/" + HandlerToken
+	Token := "localhost:" + ServerPort + "" + HandlerToken
 
 	//
 	//
 	//
-	Ping := "localhost:9001/" + HandlerPing
+	Ping := "localhost:" + ServerPort + "" + HandlerPing
 
 	//
 	//
 	//
-	Hello := "localhost:9001/" + HandlerHello
+	Hello := "localhost:" + ServerPort + "" + HandlerHello
 
 	//
 	//
@@ -89,7 +92,7 @@ func ShowScreen() {
 	//
 	// Showing on the screen
 	//
-	fmt.Println("Start port:", 9001)
+	fmt.Println("Start port:", ServerPort)
 	fmt.Println("Endpoints:")
 	fmt.Println(Token)
 	fmt.Println(Ping)
@@ -148,6 +151,11 @@ func Hello(w http.ResponseWriter, req *http.Request) {
 	//
 	//
 	//
+	hello := []byte(json)
+
+	//
+	//
+	//
 	w.Header().Set("X-Custom-Header", "HeaderValue-x83838374774")
 
 	//
@@ -163,7 +171,7 @@ func Hello(w http.ResponseWriter, req *http.Request) {
 	//
 	//
 	//
-	w.Write(json)
+	w.Write(hello)
 }
 
 //
@@ -189,22 +197,22 @@ func main() {
 	//
 	mux := http.NewServeMux()
 
-	mux.Handle(HandlerPing, tollbooth.LimitFuncHandler(limiter, HandlerFuncAuth(AutValidate, Ping)))
+	mux.Handle(HandlerPing, tollbooth.LimitFuncHandler(limiter, HandlerFuncAuth(jwt.HandlerValidate, Ping)))
 
-	mux.Handle(HandlerHello, tollbooth.LimitFuncHandler(limiter, HandlerFuncAuth(AutValidate, Hello)))
+	mux.Handle(HandlerHello, tollbooth.LimitFuncHandler(limiter, HandlerFuncAuth(jwt.HandlerValidate, Hello)))
 
 	//
 	// Off the default mux
 	// Does not need authentication, only user key and token
 	//
-	mux.Handle(HandlerToken, tollbooth.LimitFuncHandler(limiter, AuthBasic))
+	mux.Handle(HandlerToken, tollbooth.LimitFuncHandler(limiter, jwt.AuthBasic))
 
 	//
 	//
 	//
 	confServer = &http.Server{
 
-		Addr: ":" + cfg.ServerPort,
+		Addr: ":" + ServerPort,
 
 		Handler: mux,
 		//ReadTimeout:    30 * time.Second,
