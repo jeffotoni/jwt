@@ -13,11 +13,13 @@ package main
 //
 //
 import (
+	"context"
 	"fmt"
 	"github.com/didip/tollbooth"
 	jwt "github.com/jeffotoni/jwt/auth"
 	"log"
 	"net/http"
+	"os/signal"
 	"time"
 )
 
@@ -220,5 +222,26 @@ func main() {
 		MaxHeaderBytes: 1 << 23, // Size accepted by package
 	}
 
-	log.Fatal(confServer.ListenAndServe())
+	go func() {
+		// service connections
+		if err := confServer.ListenAndServe(); err != nil {
+			log.Printf("listen: %s\n", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 5 seconds.
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	log.Println("Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := confServer.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shutdown:", err)
+	}
+	log.Println("Server exist")
+
+	//log.Fatal(confServer.ListenAndServe())
 }
