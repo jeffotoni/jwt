@@ -19,6 +19,7 @@ import (
 	jwt "github.com/jeffotoni/jwt/auth"
 	"log"
 	"net/http"
+	"os"
 	"os/signal"
 	"time"
 )
