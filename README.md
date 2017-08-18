@@ -34,8 +34,6 @@ $ sudo cp jwt /usr/bin
 
 ```go
 
-func main() {
 
-	
 
 ```
