@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -170,7 +171,7 @@ func main() {
 	// get token
 	//
 
-	TokenString := Shoot.GeToken(endPoinToken, UserR, PassR)
+	TokenString := GeToken(endPoinToken, UserR, PassR)
 
 	TokenString = strings.TrimSpace(strings.Trim(TokenString, " "))
 
@@ -208,7 +209,7 @@ func main() {
 
 		<-limiter
 
-		msg := Shoot.ShootUrl(endPoint1, TokenString)
+		msg := ShootUrl(endPoint1, TokenString)
 		fmt.Println("request: ", req, "msg: ", msg)
 
 		if req == 200 {
