@@ -12,7 +12,11 @@ We will Generate the Token and with the same token we will validate our handlers
 
 # Packages
 
+```go
+
 go get -u github.com/dgrijalva/jwt-go
+
+```
 
 # Generate the keys
 
@@ -26,16 +30,24 @@ $ openssl rsa -in private.rsa -pubout > public.rsa.pub
 
 # Install
 
+```go
 $ go build main.go
 
 $ sudo cp main /usr/bin/jwt
 
+```
+
 # Simulate 
+
+```go
 
 $ go run simulate_ping.go
 
+```
 
 # Simulate Curl
+
+```sh
 
 $ curl -X POST -H "Content-Type: application/json" \
 -H "Authorization: Basic ZTg5NjFlZDczYTQzMzE0YWYyY2NlNDdhNGY1YjY1ZGI=:ZGExMjRhMDAwNTE1MDUyYzFlNWJjNmU0NzQ4Yzc3ZTU=" \
@@ -48,6 +60,8 @@ localhost:9001/ping
 $ curl -X POST -H "Content-Type: application/json" \
 -H -H "Authorization: Bearer <TOKEN>" \
 localhost:9001/hello
+
+```
 
 # Main function
 
