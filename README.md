@@ -54,11 +54,11 @@ $ curl -X POST -H "Content-Type: application/json" \
 localhost:9001/token
 
 $ curl -X POST -H "Content-Type: application/json" \
--H -H "Authorization: Bearer <TOKEN>" \
+-H "Authorization: Bearer <TOKEN>" \
 localhost:9001/ping
 
 $ curl -X POST -H "Content-Type: application/json" \
--H -H "Authorization: Bearer <TOKEN>" \
+-H "Authorization: Bearer <TOKEN>" \
 localhost:9001/hello
 
 ```
