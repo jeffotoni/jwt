@@ -249,7 +249,7 @@ func AuthBasic(w http.ResponseWriter, r *http.Request) {
 	//
 	if tokenUserDecodeS == UserR && keyUserDecS == PassR {
 
-		var model = models.User
+		var model models.User
 
 		model.Login = tokenUserDecodeS
 		//model.Password = keyUserDec
