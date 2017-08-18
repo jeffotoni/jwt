@@ -13,13 +13,34 @@ package main
 //
 //
 import (
+	"crypto/rsa"
+	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"strconv"
+	"strings"
 	"time"
+)
+
+var (
+	privateKey *rsa.PrivateKey
+	publicKey  *rsa.PublicKey
+
+	pathPrivate = "./private.rsa"
+	pathPublic  = "./public.rsa.pub"
+
+	ProjectTitle = "printserver zebra"
+
+	ExpirationHours = 24 // Hours
+	DayExpiration   = 10 // Days
+
+	UserR = "jeffotoni"
+	PassR = "654323121"
 )
 
 //
@@ -33,12 +54,70 @@ const (
 	HandlerPing  = "/ping"
 )
 
+//
+// User structure
+//
+type Login struct {
+
+	//
+	//
+	//
+	User string `json:"user"`
+
+	//
+	//
+	//
+	Password string `json:"password,omitempty"`
+
+	//
+	//
+	//
+	Role string `json:"role"`
+}
+
+//
+// jwt
+//
+type Claim struct {
+
+	//
+	//
+	//
+	User string `json:"user"`
+
+	//
+	//
+	//
+	jwt.StandardClaims
+}
+
+//
+// ResponseToken
+//
+type ResponseToken struct {
+
+	//
+	// token
+	//
+	Token string `json:"token"`
+
+	Expires string `json:"expires"`
+}
+
 // This method Message is to return our messages
 // in json, ie the client will
 // receive messages in json format
 type Message struct {
 	Code int    `json:code`
 	Msg  string `json:msg`
+}
+
+//
+// Structure of our server configurations
+//
+type JsonMsg struct {
+	Status string `json:"status"`
+	Msg    string `json:"msg"`
 }
 
 //
